@@ -34,7 +34,10 @@ arcpy.AddField_management(outputFC,"Date","DATE")
 inputFileObj = open(inputFile,'r')
 
 # Get the first line of data, so we can use a while loop
-lineString = inputFileObj.readline()
+lineString = inputFileObj.readline()\
+    
+# Create the insert cursor
+cur = arcpy.da.InsertCursor(outputFC,['Shape@','TagID','LC','Date'])
 
 # Start the while loop
 while lineString:
@@ -78,6 +81,13 @@ while lineString:
             obsPoint.X = obsLon
             obsPoint.Y = obsLat
             
+            # Convert the point to a point geometry object with spatial reference
+            inputSR = arcpy.SpatialReference(4326)
+            obsPointGeom = arcpy.PointGeometry(obsPoint,inputSR)
+            
+            # Create a feature object
+            feature = cur.insertRow((obsPointGeom,tagID,LC,date.replace(".","/") + " " + time))
+            
             # Print results to see how we're doing
             #print (tagID,"Lat:"+ str(obsLat) ,"Long:"+ str(obsLon) ,"Date:"+date,"Time:"+time,"LC:"+LC)
 
@@ -87,6 +97,9 @@ while lineString:
         
     # Move to the next line so the while loop progresses
     lineString = inputFileObj.readline()
-    
+
+#Delete the cursor object
+del cur
+
 #Close the file object
 inputFileObj.close()

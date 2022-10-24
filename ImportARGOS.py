@@ -16,10 +16,10 @@ arcpy.env.overwriteOutput = True
 
 # Set input variables (Hard-wired)
 # inputFile = 'V:/ARGOSTracking/Data/ARGOSData/1997dg.txt'
-inputFolder = '../Data/ARGOSData'
+inputFolder = arcpy.GetParameterAsText(0)
 inputFiles = os.listdir(inputFolder)
-outputFC = "V:/ARGOSTracking/Scratch/ARGOStrack.shp"
-outputSR = arcpy.SpatialReference(54002)
+outputFC = arcpy.GetParameterAsText(2)
+outputSR = arcpy.GetParameterAsText(1)
 
 ## Prepare a new feature class to which we'll add tracking points
 # Create an empty feature class; requires the path and name as separate parameters
@@ -101,7 +101,7 @@ for file in inputFiles:
     
             #Handle any error
             except Exception as e:
-                print(f"Error adding record {tagID} to the output: {e}")        
+                arcpy.AddWarning(f"Error adding record {tagID} to the output: {e}")        
             
         # Move to the next line so the while loop progresses
         lineString = inputFileObj.readline()
